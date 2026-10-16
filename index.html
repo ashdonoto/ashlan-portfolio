@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+ASHLAN v1.2 — Portfolio and expanded synthesis music lab
+Implementation record (2026-10-16):
+1. Created responsive portfolio, inline cover studies and native project dialogs.
+2. Added shared chord spelling/MIDI theory, piano input and bounded polyphonic synthesis.
+3. Added independent progression slots, presets, audio-clock scheduling and safe transport.
+4. Checked theory and scheduling with mocked DOM/Web Audio; browser launch unavailable.
+Iteration 2 (2026-10-16): Real portrait and Zelda cover; editorial piano cover;
+conceptual MIDI artwork and ongoing research details. Original image files preserved.
+Verification: Music Lab source unchanged byte-for-byte; 23 mocked theory/audio
+regressions passed; mock-DOM initialization, image insertion and all modal content
+passed. Chrome and Quick Look could not launch in this sandbox; visual rendering,
+responsive layouts, native dialog behavior and audible output need manual review.
+Link update (2026-10-16): Configured supplied Zelda/Hedwig video and YouTube
+channel URLs; omitted GitHub from visible socials. New Hedwig cover file pending.
+Iteration 3: Added Instagram, six centralized synthesis presets and shared octave
+transposition. A scrollable transposing keyboard displays actual sounding pitches.
+Iteration 3 verification: 46 mock-DOM/Web Audio checks, including all 1,800
+chord/quality/inversion/octave combinations, sound-setting snapshots, transport,
+voice limiting/cleanup, social links and project-modal regressions. HTML structure,
+IDs and script references validated. Actual audio and browser layout need review.
+DEPLOYMENT ASSETS: Include 811dcbbd-2ef2-4297-8ece-fa7117f5164b.jpeg and
+橫式封面.png beside index.html. Relative paths work locally and on GitHub Pages.
+The full-resolution Zelda PNG is intentionally referenced rather than base64-embedded.
+
+CUSTOMIZE: Search for "EDIT YOUR CONTENT HERE" in the script.
+PREVIEW: Open this file in a current browser. No build tools or server required.
+PUBLISH: Upload index.html to your GitHub repository root; choose Settings > Pages >
+Deploy from a branch > main / (root). Wait for GitHub's deployment and open its URL.
+MANUAL QA: Check 1440/768/390/320px; all modal dismissal methods and focus return;
+piano taps/keyboard navigation; inversions; each slot replacement; presets; BPM;
+Loop on/off; Stop/restart; rapid clicks; and iOS/Android audio after a user gesture.
+For completely offline custom imagery, use embedded data:image URLs in CONFIG.
+-->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#202422">
+<meta name="description" content="ASHLAN — exploring music through classical piano, orchestration, and an interactive music lab.">
+<title>ASHLAN — Between Sound and Imagination</title>
+<style>
+/* 01 — Foundations */
+:root{--ivory:#f6f4ef;--ink:#202422;--sage:#829b8c;--stone:#dad5cb;--gold:#b8a17f;--muted:#666a63;--light:#f8f8f5;--line:rgba(248,248,245,.17)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:100px}body{margin:0;background:var(--ivory);color:var(--ink);font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.65}body.modal-open{overflow:hidden}button,input,select{font:inherit}button,a,input,select{-webkit-tap-highlight-color:transparent}button,a{touch-action:manipulation}button{cursor:pointer}a{color:inherit;text-decoration:none}button{color:inherit}button:disabled{cursor:default;opacity:.45}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #557d68;outline-offset:5px}.lab :focus-visible{outline-color:#c5dfcf}::selection{background:#c6d2c8}h1,h2,h3,p{margin:0}h1,h2,h3{font-family:Georgia,'Times New Roman',serif;font-weight:400;line-height:1.12}h2{font-size:clamp(36px,4.8vw,62px);letter-spacing:-2px}h3{font-size:26px}button{border-radius:0}svg{display:block;max-width:100%}img{display:block;width:100%;height:100%;object-fit:cover}[hidden]{display:none!important}.wrap{width:min(1200px,calc(100% - 96px));margin:auto}.eyebrow{font-size:10px;letter-spacing:2.3px;font-weight:600;text-transform:uppercase}.section-label{display:flex;gap:15px;align-items:center;margin-bottom:28px}.section-label span:first-child{color:#777c71;font-size:11px}.section-label:after{content:'';width:45px;height:1px;background:var(--stone)}.section{padding:100px 0}.btn{display:inline-flex;align-items:center;justify-content:center;gap:24px;min-height:48px;padding:12px 23px;border:1px solid var(--ink);background:transparent;font-size:12px;font-weight:600;transition:background .2s,color .2s,transform .2s}.btn:hover{background:#e5e4dc}.btn.primary{background:var(--ink);color:var(--ivory)}.btn.primary:hover{background:#3b4840}.arrow{font-size:20px;font-weight:400;line-height:1}.text-link{display:inline-flex;align-items:center;gap:18px;font-size:12px;border-bottom:1px solid var(--stone);padding:10px 0}.text-link:hover{border-color:var(--ink)}.skip{position:fixed;top:-100px;left:12px;z-index:100;background:var(--ivory);padding:12px}.skip:focus{top:12px}
+/* 02 — Portfolio */
+header{position:sticky;top:0;z-index:20;background:rgba(246,244,239,.97);border-bottom:1px solid var(--stone)}.nav{height:80px;display:flex;align-items:center;justify-content:space-between;gap:24px}.brand{font-family:Georgia,serif;font-size:28px;letter-spacing:3px;line-height:1}.brand span{color:#718a79}.nav-links{display:flex;align-items:center;gap:34px;font-size:11px}.nav-links a{padding:12px 0}.nav-links a:hover{color:#54735f}.nav-links .lab-link{border:1px solid #b7beb2;padding:9px 15px}.lab-link:before{content:'';display:inline-block;background:#6c8b74;width:5px;height:5px;border-radius:50%;margin-right:9px}.menu-toggle{display:none;background:none;border:1px solid var(--stone);padding:10px 14px;min-height:44px}.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:70px;align-items:center;padding:75px 0 65px}.hero h1{font-size:clamp(54px,6.2vw,83px);letter-spacing:-3.5px;margin:27px 0}.hero h1 em{font-weight:400;color:#718675}.hero .intro{max-width:340px;color:var(--muted);font-size:14px;line-height:1.9}.hero-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:33px}.hero .eyebrow{font-size:9px;letter-spacing:1.8px}.hero-visual{position:relative;padding:0 0 22px 22px}.hero-visual:before{content:'';position:absolute;left:0;bottom:0;width:77%;height:80%;border:1px solid #b7b8aa;pointer-events:none}.portrait{aspect-ratio:4/4.7;position:relative;overflow:hidden;background:#c7c5b5}.portrait svg{height:100%;width:100%}.media-caption{display:flex;justify-content:space-between;gap:15px;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;position:absolute;bottom:40px;left:40px;right:18px;color:#e6e6d9}.hero-foot{border-top:1px solid var(--stone);padding:22px 0;display:flex;justify-content:space-between;font-size:9px;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted)}.hero-foot span:last-child{letter-spacing:0;font-family:Georgia,serif;font-size:14px;font-style:italic}.about{border-bottom:1px solid var(--stone)}.about-top{display:grid;grid-template-columns:1fr 1fr;gap:85px}.about-copy{color:var(--muted);padding-top:50px;line-height:1.9;font-size:14px}.interests{display:grid;grid-template-columns:repeat(3,1fr);gap:36px;margin-top:60px}.interest{border-top:1px solid #b6bdb0;padding-top:23px;display:grid;grid-template-columns:40px 1fr;gap:13px}.interest-icon{font-family:Georgia,serif;color:#6d846f;font-size:30px;line-height:1}.interest h3{font-size:23px;margin:0 0 7px}.interest p{font-size:11px;color:var(--muted)}.section-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:25px;margin-bottom:42px}.section-heading>p{max-width:260px;font-size:12px;color:var(--muted)}.works-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}.work-card{width:100%;border:0;padding:0;background:transparent;text-align:left;display:flex;flex-direction:column}.cover{width:100%;aspect-ratio:1.2;position:relative;overflow:hidden;margin-bottom:24px}.cover svg{width:100%;height:100%;transition:transform .6s}.work-card:hover .cover svg,.work-card:hover .cover img{transform:scale(1.035)}.cover-num{position:absolute;top:15px;left:17px;font-size:10px;letter-spacing:2px;color:#f6f4ef;z-index:1}.work-category{font-size:8px;letter-spacing:1.4px;text-transform:uppercase;color:#677560;margin-bottom:11px}.work-card h3{font-size:25px;letter-spacing:-.5px;margin-bottom:12px}.work-description{font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:20px}.work-card .text-link{margin-top:auto;width:100%;justify-content:space-between}.cover-note{font-size:10px;color:var(--muted);margin-top:22px}
+/* 03 — Music Lab */
+.lab{background:var(--ink);color:var(--light);padding:88px 0 95px;position:relative}.lab .section-label span:first-child{color:#b1bfae}.lab .section-label:after{background:#50594e}.lab .section-heading{margin-bottom:42px}.lab h2 em{color:#a6bba8;font-weight:400}.lab .section-heading>p{color:#bac1b7;max-width:285px}.lab .eyebrow{color:#c2cfbd}.lab-shell{border:1px solid #50584e}.module{padding:31px 34px}.module-title{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:28px}.module-title h3{font-size:26px}.module-title h3 span{font-family:Arial,sans-serif;font-size:9px;letter-spacing:1px;color:#aabca4;margin-right:15px;vertical-align:middle}.tiny{font-size:10px;color:#b9c1b5}.sound-label{display:flex;align-items:center;gap:7px}.sound-label:before{content:'';width:5px;height:5px;background:#9db396;border-radius:50%}.explorer-controls{display:grid;grid-template-columns:1fr 1.3fr 1.3fr auto;gap:18px;align-items:end}.field label,.field-label{display:block;text-transform:uppercase;font-size:9px;letter-spacing:1.4px;color:#c0c8b9;margin-bottom:9px}.field select{color:#f1f3ed;background:#2c332e;border:1px solid #5d665a;width:100%;height:46px;padding:0 30px 0 12px;min-width:0;color-scheme:dark;font-size:12px}.lab .btn{border-color:#667260;color:#e8eee2;white-space:nowrap}.lab .btn:hover{background:#3f4c40}.lab .btn.primary{background:#a4b99e;color:#17221b;border-color:#a4b99e}.lab .btn.primary:hover{background:#c0d0b8}.chord-readout{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:29px 0 22px}.chord-name{font-family:Georgia,serif;font-size:39px;line-height:1.2}.chord-notes{color:#d0dac8;font-size:12px;letter-spacing:2px;margin-top:7px}.chord-meta{display:flex;align-items:center;gap:20px}.reset{border:0;background:transparent;font-size:11px;color:#c8d2bf;text-decoration:underline;text-underline-offset:4px;min-height:44px;padding:10px}.keyboard-scroll{overflow-x:auto;overscroll-behavior-x:contain;padding:5px 3px 9px;scrollbar-color:#829b8c #30372e;scrollbar-width:thin}.keyboard{position:relative;display:flex;min-width:714px;height:172px;isolation:isolate}.key{position:relative;border:1px solid #878a7d;border-radius:0 0 4px 4px;flex:1;background:linear-gradient(#e6e6dc,#f8f8ef);padding:0;min-width:0;touch-action:manipulation;box-shadow:inset 0 -5px 0 #c8cbbd}.key.black{position:absolute;top:0;height:62%;width:3.05%;z-index:2;background:linear-gradient(90deg,#151a16,#30372e 60%,#171c18);border-color:#121712;box-shadow:inset 0 -5px 0 #101510}.key.selected{background:#b4c8a8;box-shadow:inset 0 -5px 0 #819777}.key.black.selected{background:#668064;box-shadow:inset 0 -5px 0 #4b614a}.key.sounding{background:#e4d3a6!important;box-shadow:inset 0 -5px 0 #b8a17f!important}.key:focus-visible{outline:2px solid #b48c48;outline-offset:-4px;z-index:3}.key-label{position:absolute;bottom:13px;left:0;right:0;font-size:9px;color:#4d5748;pointer-events:none}.black .key-label{color:#e2eadb;bottom:9px;font-size:8px}.keyboard-legend{display:flex;justify-content:space-between;gap:14px;color:#b9c4af;font-size:10px;margin-top:9px}.legend-dot{display:inline-block;width:6px;height:6px;background:#b4c8a8;border-radius:50%;margin-right:6px}.builder{border-top:1px solid #50584e;background:#252c26}.preset-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px}.preset-label{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#b9c4af;margin-right:5px}.chip{border:1px solid #5c6756;background:transparent;color:#d7dfcf;padding:6px 13px;font-size:10px;min-height:36px}.chip:hover,.chip[aria-pressed=true]{background:#c0cfb7;color:#202422;border-color:#c0cfb7}.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:24px 0 15px}.slot{background:#2c342d;border:1px solid #53604e;color:var(--light);padding:17px 19px;text-align:left;position:relative;min-height:118px}.slot[aria-pressed=true]{border-color:#c1d0b6;box-shadow:inset 0 0 0 1px #c1d0b6}.slot.playing{background:#4c614b}.slot-top{display:flex;align-items:center;justify-content:space-between;font-size:9px;letter-spacing:1px;color:#bdcbb3}.slot-name{font-family:Georgia,serif;font-size:29px;display:block;margin:8px 0 3px;line-height:1.2}.slot-inversion{font-size:9px;color:#bbc7b2}.slot.playing .slot-top:after{content:'●';color:#d7e7c9;position:absolute;right:15px;top:14px}.slot-editor{display:flex;flex-wrap:wrap;align-items:center;gap:12px 22px;font-size:11px;color:#c7d0be;padding:9px 0 23px}.slot-editor .btn{font-size:10px;min-height:38px;padding:8px 13px;gap:12px}.transport{display:flex;align-items:center;justify-content:space-between;gap:20px;border-top:1px solid #505b49;padding-top:23px}.transport-actions{display:flex;gap:10px;align-items:center}.transport .btn{min-height:44px;padding:10px 20px;gap:12px}.loop{display:flex;gap:8px;align-items:center;font-size:11px;white-space:nowrap;min-height:44px}.loop input{accent-color:#b6c9a9;width:16px;height:16px}.tempo{display:flex;align-items:center;gap:13px;font-size:10px;color:#cbd4c2}.tempo input{accent-color:#b4c8a8;width:125px}.tempo output{min-width:50px;font-variant-numeric:tabular-nums}.lab-foot{display:flex;justify-content:space-between;gap:20px;margin-top:18px;min-height:32px;font-size:10px;color:#b9c5b0}.lab-foot #audio-status{max-width:620px}.lab-footer-note{border-top:1px solid #414b3e;margin-top:34px;padding-top:21px;color:#aab8a0;font-size:10px;display:flex;justify-content:space-between;gap:20px}
+/* 04 — Contact & dialog */
+.contact{text-align:center;padding:95px 0 75px}.contact .eyebrow{color:#677963;margin-bottom:25px}.contact h2{font-size:clamp(38px,5.5vw,68px)}.contact h2 em{color:#788c77;font-weight:400}.socials{display:flex;justify-content:center;flex-wrap:wrap;gap:34px;margin-top:35px;font-size:12px}.socials a,.socials .unconfigured{display:inline-flex;align-items:center;gap:10px;padding:10px 0}.socials .unconfigured{color:#73796e}.socials small{font-size:9px}.social-icon{font-size:17px}.footer{border-top:1px solid var(--stone);display:flex;justify-content:space-between;gap:20px;padding:23px 0;color:var(--muted);font-size:10px}.footer .brand{font-size:15px;color:var(--ink)}dialog{width:min(620px,calc(100% - 32px));max-height:85dvh;border:1px solid var(--stone);background:var(--ivory);color:var(--ink);padding:42px;overflow:auto}dialog::backdrop{background:rgba(18,25,20,.75)}.dialog-close{position:absolute;right:14px;top:12px;width:44px;height:44px;background:transparent;border:0;font-size:26px}.dialog-category{color:#64765c;margin:18px 0}.dialog-title{font-size:36px;line-height:1.2;margin:20px 0}.dialog-copy{font-size:14px;color:var(--muted);line-height:1.9}.instrumentation{border-top:1px solid var(--stone);border-bottom:1px solid var(--stone);margin:24px 0;padding:18px 0}.instrumentation dt{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}.instrumentation dd{margin:6px 0 0;font-size:14px}.video-pending{font-size:12px;color:var(--muted)}.reveal{animation:arrive .8s both}.hero-visual{animation-delay:.12s}@keyframes arrive{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@media(min-width:1500px){.hero{padding-top:90px;padding-bottom:80px}}
+@media(max-width:1000px){.wrap{width:calc(100% - 64px)}.hero{gap:35px}.hero h1{font-size:60px}.hero-actions{gap:8px}.hero-actions .btn{padding:12px 15px;font-size:11px;gap:14px}.about-top{gap:45px}.module{padding:26px}.explorer-controls{gap:12px;grid-template-columns:1fr 1.3fr 1.3fr}.explorer-controls>.btn{grid-column:1/-1;justify-self:start}.transport{flex-wrap:wrap}.work-card h3{font-size:22px}.works-grid{gap:20px}.module-title{align-items:flex-start}.preset-row{justify-content:flex-end}}
+@media(max-width:700px){.wrap{width:calc(100% - 40px)}.nav{height:66px}.brand{font-size:24px}.menu-toggle{display:block}.nav-links{display:none;position:absolute;top:66px;left:0;right:0;background:var(--ivory);padding:20px;border-bottom:1px solid var(--stone);gap:0;flex-direction:column;align-items:stretch}.nav-links.open{display:flex}.nav-links a{padding:13px}.nav-links .lab-link{margin:5px 0}.hero{grid-template-columns:1fr;gap:38px;padding:46px 0 34px}.hero h1{font-size:clamp(49px,10vw,70px);max-width:500px;margin:22px 0}.hero .intro{max-width:350px}.hero-visual{max-width:520px;width:100%;padding-left:15px;padding-bottom:15px}.portrait{aspect-ratio:1.2}.hero-foot{font-size:8px;gap:15px}.hero-foot span:last-child{font-size:12px}.section{padding:64px 0}.about-top{grid-template-columns:1fr;gap:25px}.about-copy{padding:0}.interests{grid-template-columns:1fr;gap:24px;margin-top:32px}.interest{padding-top:18px}.section-heading{display:block;margin-bottom:30px}.section-heading>p{margin-top:18px}.works-grid{grid-template-columns:1fr;gap:38px}.work-card h3{font-size:28px}.cover{aspect-ratio:1.5;margin-bottom:20px}.lab{padding:64px 0}.lab h2{font-size:42px}.module{padding:22px 16px}.module-title{flex-wrap:wrap;gap:16px}.module-title h3{font-size:24px}.module-title .sound-label{display:none}.explorer-controls{grid-template-columns:1fr 1fr}.explorer-controls .field:nth-child(3){grid-column:1/-1}.explorer-controls>.btn{grid-column:auto;width:100%;grid-column:1/-1}.chord-name{font-size:34px}.chord-meta{gap:8px;flex-direction:column;align-items:flex-end}.chord-meta .tiny{font-size:9px}.keyboard-legend{flex-direction:column;gap:4px}.slots{grid-template-columns:repeat(2,1fr);gap:9px}.slot{padding:14px;min-height:110px}.preset-row{justify-content:flex-start}.slot-editor{gap:9px}.slot-editor>span{width:100%}.slot-editor .btn{flex:1;padding:8px;white-space:normal}.transport{gap:15px}.transport-actions{flex-wrap:wrap;gap:9px}.transport .btn{padding:10px 16px}.tempo{width:100%}.tempo input{flex:1;width:80px}.lab-foot,.lab-footer-note{flex-direction:column;gap:7px}.contact{padding:65px 0 50px}.socials{gap:15px}.socials .unconfigured{flex-wrap:wrap;justify-content:center;font-size:11px}.socials small{width:100%}.footer{flex-wrap:wrap;font-size:9px}dialog{padding:28px}.dialog-title{font-size:29px}}
+
+/* Iteration 2 — Portrait, cohesive project artwork and research details */
+.portrait img{position:absolute;inset:0;object-fit:cover;object-position:50% 72%}
+.portrait-fallback{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:#3c493b;background:#d8d7c9}
+.portrait-fallback span:first-child{font-family:Georgia,serif;font-size:32px;letter-spacing:4px}
+.portrait-fallback span:last-child{font-size:10px;letter-spacing:2px;text-transform:uppercase}
+#works .cover{aspect-ratio:16/9;background:#202422}
+.cover-media{position:absolute;inset:0;overflow:hidden}
+.cover-media img{object-fit:cover;object-position:center;transition:transform .6s}
+#works .cover-num{background:rgba(32,36,34,.8);padding:3px 7px;top:12px;left:12px}
+#works .work-card{min-width:0}
+.work-topic{font-size:11px;color:#677560;line-height:1.65;margin:-3px 0 13px}
+#works .work-category{font-size:9px}
+@supports(grid-template-rows:subgrid){
+  #works .works-grid{row-gap:0}
+  #works .work-card{display:grid;grid-template-rows:subgrid;grid-row:span 5;align-items:start}
+  #works .work-card .text-link{align-self:end}
+}
+.dialog-topic{font-family:Georgia,serif;font-size:21px;line-height:1.45;margin:-5px 0 20px;color:#60715a}
+.research-status{display:inline-block;border:1px solid #bdc8b7;background:#e8ece2;color:#485e41;font-size:10px;letter-spacing:1px;padding:5px 10px;margin-bottom:16px;text-transform:uppercase}
+.research-keywords-title{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin:24px 0 10px}
+.research-keywords{list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:8px;margin:0 0 24px}
+.research-keywords li{border:1px solid var(--stone);padding:5px 9px;font-size:11px;color:#505d4b}
+.research-note{font-size:11px;line-height:1.8;color:var(--muted);border-top:1px solid var(--stone);padding-top:16px}
+@media(max-width:700px){
+  .portrait{aspect-ratio:4/5}
+  .portrait img{object-position:50% 75%}
+  @supports(grid-template-rows:subgrid){#works .work-card{margin-bottom:38px}#works .work-card:last-child{margin-bottom:0}}
+}
+
+
+/* Iteration 3 — Shared sound and register controls */
+.explorer-controls{grid-template-columns:1fr 1.3fr 1.3fr}
+.sound-controls .field,.explorer-controls .field{min-width:0}
+.sound-controls{display:grid;grid-template-columns:1.5fr 1fr auto;gap:18px;align-items:end;margin-top:18px}
+.keyboard{width:1260px;min-width:1260px}
+.keyboard .key{flex:0 0 36px}
+.keyboard .key.black{width:23px}
+.keyboard-register{font-size:10px;color:#b9c4af;margin-top:8px}
+@media(max-width:1000px){.explorer-controls{grid-template-columns:1fr 1.3fr 1.3fr}.sound-controls{gap:12px}}
+@media(max-width:700px){
+  .explorer-controls{grid-template-columns:1fr 1fr}
+  .sound-controls{grid-template-columns:1.3fr 1fr;gap:12px}
+  .sound-controls>.btn{grid-column:1/-1;width:100%}
+  .module-title .sound-label{display:flex}
+}
+
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header><div class="wrap nav"><a class="brand" href="#home" aria-label="ASHLAN home">ASHLAN<span>.</span></a><button class="menu-toggle" aria-expanded="false" aria-controls="navigation">Menu <span aria-hidden="true">☰</span></button><nav class="nav-links" id="navigation" aria-label="Main navigation"><a href="#about">About</a><a href="#works">Works</a><a class="lab-link" href="#music-lab">Music Lab</a><a href="#contact">Contact ↗</a></nav></div></header>
+<main id="main">
+<section id="home" class="wrap" aria-labelledby="hero-title"><div class="hero"><div class="reveal"><p class="eyebrow">Pianist · Arranger · Music & Technology</p><h1 id="hero-title">Between Sound<br>and <em>Imagination.</em></h1><p class="intro" id="hero-description">Exploring music through performance, orchestration, and technology.</p><div class="hero-actions"><a class="btn primary" href="#works">Explore My Works <span class="arrow" aria-hidden="true">↗</span></a><a class="btn" href="#music-lab">Enter Music Lab <span class="arrow" aria-hidden="true">→</span></a></div></div><div class="hero-visual reveal"><div class="portrait" id="portrait-media"><div class="portrait-fallback"><span>ASHLAN.</span><span>At the piano</span></div></div></div></div><div class="hero-foot"><span>Performance · Creation · Exploration</span><span>Discover the artist. Explore the music.</span></div></section>
+<section class="section about" id="about" aria-labelledby="about-title"><div class="wrap"><div class="about-top"><div><div class="section-label eyebrow"><span>01</span> Behind the music</div><h2 id="about-title">A Little About Me</h2></div><p class="about-copy" id="biography"></p></div><div class="interests"><article class="interest"><span class="interest-icon" aria-hidden="true">♮</span><div><h3>Performance</h3><p>Classical Piano</p></div></article><article class="interest"><span class="interest-icon" aria-hidden="true">𝄞</span><div><h3>Creation</h3><p>Orchestration & Arrangement</p></div></article><article class="interest"><span class="interest-icon" aria-hidden="true">✳</span><div><h3>Exploration</h3><p>Music & Artificial Intelligence</p></div></article></div></div></section>
+<section class="section" id="works" aria-labelledby="works-title"><div class="wrap"><div class="section-heading"><div><div class="section-label eyebrow"><span>02</span> Selected works</div><h2 id="works-title">Selected Works.<br>Different Perspectives.</h2></div><p>From piano performance and orchestral arrangements to the intersection of music and artificial intelligence.</p></div><div class="works-grid" id="works-grid"></div><p class="cover-note">Performance · Arrangement · Ongoing research</p></div></section>
+<section class="lab" id="music-lab" aria-labelledby="lab-title"><div class="wrap"><div class="section-heading"><div><div class="section-label eyebrow"><span>03</span> The interactive music lab</div><h2 id="lab-title">Don't Just Listen.<br><em>Explore.</em></h2></div><p>An interactive space to discover harmony, sound, and musical ideas.</p></div><div class="lab-shell"><section class="module" aria-labelledby="explorer-title"><div class="module-title"><h3 id="explorer-title"><span>01 /</span> Chord Explorer</h3><span class="tiny sound-label" id="sound-label">Mellow Piano · Octave 0</span></div><div class="explorer-controls"><div class="field"><label for="root">Root note</label><select id="root"></select></div><div class="field"><label for="quality">Chord quality</label><select id="quality"></select></div><div class="field"><label for="inversion">Inversion</label><select id="inversion"></select></div></div><div class="sound-controls"><div class="field"><label for="instrument">Instrument / Sound</label><select id="instrument"></select></div><div class="field"><label for="octave">Octave shift</label><select id="octave"></select></div><button class="btn primary" id="play-chord"><span aria-hidden="true">▶</span> Play Chord</button></div><div class="chord-readout"><div aria-live="polite" aria-atomic="true"><div class="chord-name" id="chord-name">C</div><div class="chord-notes" id="chord-notes">C4 · E4 · G4</div></div><div class="chord-meta"><span class="tiny" id="chord-inversion">Root position</span><button class="reset" id="reset">Reset explorer ↺</button></div></div><div class="keyboard-scroll" tabindex="0" role="region" aria-label="Playable transposing piano. Keys sound at their labeled pitches. Scroll horizontally to explore the current register."><div class="keyboard" id="keyboard" role="group" aria-label="Piano keyboard" aria-describedby="keyboard-register"></div></div><p class="keyboard-register" id="keyboard-register">Keyboard register C2–B6 · Keys sound as labeled</p><div class="keyboard-legend"><span><i class="legend-dot" aria-hidden="true"></i> Selected chord tones <span aria-hidden="true">·</span> <span id="voicing-label">C4 – G4</span></span><span>Click or tap to play · Arrow keys to navigate · Space to sound</span></div></section><section class="module builder" aria-labelledby="builder-title"><div class="module-title"><h3 id="builder-title"><span>02 /</span> Progression Builder</h3><div class="preset-row" role="group" aria-label="Progression presets"><span class="preset-label">Try a mood</span><button class="chip" data-preset="pop" aria-pressed="false">Pop</button><button class="chip" data-preset="jazz" aria-pressed="false">Jazz</button><button class="chip" data-preset="cinematic" aria-pressed="false">Cinematic</button></div></div><div class="slots" id="slots" role="group" aria-label="Select a chord slot to edit"></div><div class="slot-editor"><span id="slot-edit-label">Editing slot 01</span><button class="btn" id="load-slot">Load into explorer <span aria-hidden="true">↑</span></button><button class="btn" id="replace-slot">Replace with explorer <span aria-hidden="true">↓</span></button></div><div class="transport"><div class="transport-actions"><button class="btn primary" id="play-progression"><span aria-hidden="true">▶</span> Play</button><button class="btn" id="stop-progression" disabled><span aria-hidden="true">■</span> Stop</button><label class="loop"><input type="checkbox" id="loop"> Loop</label></div><div class="tempo"><label for="bpm">TEMPO</label><input type="range" id="bpm" min="50" max="160" value="90"><output for="bpm" id="bpm-output">90 BPM</output></div></div><div class="lab-foot"><p id="audio-status" role="status" aria-live="polite">Choose a chord. Press play. Follow your curiosity.</p><span>4 bars · 4/4 time · 1 chord per bar</span></div></section></div><div class="lab-footer-note"><span>Made to explore, with the Web Audio API. No samples. Just synthesis.</span><span>Preset names suggest a harmonic color, not a complete genre.</span></div></div></section>
+<section class="contact wrap" id="contact" aria-labelledby="contact-title"><p class="eyebrow">04 / Keep in touch</p><h2 id="contact-title">Let's Create<br>Something <em>Meaningful.</em></h2><div class="socials" id="socials"></div></section>
+</main><footer class="wrap footer"><a class="brand" href="#home">ASHLAN.</a><span>Music, imagination, and everything in between.</span><span>© <span id="year"></span> ASHLAN</span></footer>
+<dialog id="project-dialog" aria-labelledby="dialog-title"><button class="dialog-close" id="close-dialog" aria-label="Close project details">×</button><p class="eyebrow dialog-category" id="dialog-category"></p><h2 class="dialog-title" id="dialog-title"></h2><p class="dialog-topic" id="dialog-topic" hidden></p><p class="research-status" id="research-status" hidden>Ongoing research</p><p class="dialog-copy" id="dialog-copy"></p><dl class="instrumentation"><dt id="dialog-field-label">Instrumentation</dt><dd id="dialog-instruments"></dd></dl><section id="research-details" aria-labelledby="research-keywords-title" hidden><h3 class="research-keywords-title" id="research-keywords-title">Research keywords</h3><ul class="research-keywords" id="research-keywords"></ul><p class="research-note">An ongoing exploration. The cover is conceptual artwork, not an experimental result or a representation of validated findings.</p></section><a class="btn primary" id="video-link" target="_blank" rel="noopener noreferrer" hidden>Watch the performance ↗</a><p class="video-pending" id="video-pending">Recording link coming soon.</p></dialog>
+<script>
+(() => {
+'use strict';
+// 01 — EDIT YOUR CONTENT HERE. Empty URLs never create external links.
+// Use relative image paths, https URLs, or embedded data:image URLs for offline delivery.
+const CONFIG = {
+  heroDescription: 'Exploring music through performance, orchestration, and technology.',
+  biography: "I'm a classical pianist and orchestral arranger, drawn to the space where music and technology meet. Studying at National Yang Ming Chiao Tung University, I explore a cross-disciplinary path through music and artificial intelligence — from the expressive detail of a piano phrase to new possibilities in sound and creation.",
+  portrait: { url: './811dcbbd-2ef2-4297-8ece-fa7117f5164b.jpeg', alt: 'ASHLAN standing beside an upright piano' },
+  // Only listed platforms render; omitted platforms produce no placeholders.
+  socials: { YouTube: 'https://youtube.com/@ashlan-h1f?si=o3g46264TCyrSx5-', Instagram: 'https://www.instagram.com/ashlan.cc?srtk=ajc2dm51Zjc2aGhz' },
+  // Original local images are required deployment assets; inline SVG artwork needs no files.
+  projects: [
+    {
+      title: 'The Legend of Zelda: Breath of the Wild',
+      category: 'Piano & Orchestra Arrangement',
+      short: "A cinematic reimagining of Breath of the Wild's main theme for piano and orchestra.",
+      description: 'A large-scale arrangement bringing together classical piano performance and orchestral textures. The project integrates arranging, performance, recording, and MIDI-based orchestral production.',
+      instruments: 'Piano & orchestra',
+      image: './橫式封面.png', video: 'https://youtu.be/qNwRFoaRhpw?si=pqZz6UUYRKntUdAQ', art: 'landscape'
+    },
+    {
+      title: "Harry Potter: Hedwig's Theme",
+      category: 'Piano & Brass Arrangement',
+      short: "A virtuosic piano interpretation of Hedwig's Theme, combined with orchestral brass.",
+      description: 'A creative arrangement exploring the contrast between fast, flowing piano arpeggios and the recognizable brass melody. The project emphasizes pianistic textures, technical performance, and orchestral color.',
+      instruments: 'Piano & brass ensemble',
+      // Add the supplied cover's relative path here when the new image file is available.
+      image: '', video: 'https://youtube.com/shorts/YHVCyPHE8rI?si=zKmpsYIWvsUuh8kU', art: 'piano'
+    },
+    {
+      title: 'Music Technology & AI', category: 'Research in Progress',
+      topic: 'Instrument-aware Orchestral Part Reconstruction',
+      short: 'Exploring the intersection of symbolic music generation, orchestration, and artificial intelligence.',
+      description: 'An ongoing research exploration investigating the structure and musical coherence of AI-generated orchestral MIDI. The project focuses on understanding and reconstructing meaningful instrument-aware parts, with the goal of improving the usability and musical organization of generated orchestral arrangements.',
+      research: true, focus: 'Instrument-aware orchestral part reconstruction',
+      keywords: ['Music Information Retrieval', 'Symbolic Music Generation', 'MIDI Analysis', 'Orchestration', 'Instrument-aware Part Reconstruction'],
+      image: '', video: '', art: 'midi'
+    }
+  ]
+};
+// 02 — Shared music theory. Written spellings and sounding MIDI pitches are independent.
+const ROOTS = ['C','C♯','D','E♭','E','F','F♯','G','A♭','A','B♭','B'];
+const chordFormulas = {major:[0,4,7],minor:[0,3,7],diminished:[0,3,6],augmented:[0,4,8],sus2:[0,2,7],sus4:[0,5,7],dominant7:[0,4,7,10],major7:[0,4,7,11],minor7:[0,3,7,10]};
+const QUALITIES = {major:['Major',''],minor:['Minor','m'],diminished:['Diminished','dim'],augmented:['Augmented','aug'],sus2:['Sus2','sus2'],sus4:['Sus4','sus4'],dominant7:['Dominant 7','7'],major7:['Major 7','maj7'],minor7:['Minor 7','m7']};
+const INVERSIONS = ['Root position','First inversion','Second inversion','Third inversion'];
+const LETTERS = ['C','D','E','F','G','A','B'];
+const NATURAL = [0,2,4,5,7,9,11];
+const $ = id => document.getElementById(id);
+function normalizeChord(chord) {return {root:Number(chord.root),quality:chord.quality,inversion:Math.min(Number(chord.inversion)||0,chordFormulas[chord.quality].length-1)};}
+function spellChord(chord) {
+  const letterIndex=LETTERS.indexOf(ROOTS[chord.root][0]);
+  const degrees=chord.quality==='sus2'?[0,1,4]:chord.quality==='sus4'?[0,3,4]:[0,2,4,6];
+  return chordFormulas[chord.quality].map((interval,index)=>{
+    const letter=(letterIndex+degrees[index])%7;
+    let accidental=((chord.root+interval-NATURAL[letter])%12+12)%12;
+    if(accidental>6) accidental-=12;
+    return LETTERS[letter]+(accidental>0?'♯'.repeat(accidental):'♭'.repeat(-accidental));
+  });
+}
+function chordVoicing(input) {
+  const chord=normalizeChord(input), names=spellChord(chord);
+  let notes=chordFormulas[chord.quality].map((interval,i)=>({midi:60+chord.root+interval,name:names[i]}));
+  for(let i=0;i<chord.inversion;i++){const lowest=notes.shift();notes.push({...lowest,midi:lowest.midi+12});}
+  notes.sort((a,b)=>a.midi-b.midi);
+  return notes;
+}
+function writtenPitch(note) {
+  const letter=LETTERS.indexOf(note.name[0]);
+  const alteration=[...note.name.slice(1)].reduce((n,c)=>n+(c==='♯'?1:-1),0);
+  return note.name+((note.midi-NATURAL[letter]-alteration)/12-1);
+}
+function chordName(chord) {const notes=chordVoicing(chord);return ROOTS[chord.root]+QUALITIES[chord.quality][1]+(chord.inversion?'/'+notes[0].name:'');}
+const midiFrequency=midi=>440*Math.pow(2,(midi-69)/12);
+// The octave shift is applied once, after inversion; stored chords stay unchanged.
+function playbackVoicing(chord,shift=octaveShift){return chordVoicing(chord).map(note=>({...note,midi:note.midi+shift*12}));}
+// All timbres use the same voice lifecycle, output bus and polyphony limit.
+// Partial tuples: [waveform, frequency ratio, mix weight, detune in cents].
+const INSTRUMENTS={
+  mellow:{name:'Mellow Piano',partials:[['sine',1,1,0],['sine',2,.16,0]],level:1.16,attack:.018,decay:.332,decayLevel:.453,sustain:.232,release:.14,keyDuration:.95,chordDuration:1.8},
+  electric:{name:'Electric Piano',partials:[['sine',1,1,0],['sine',2,.34,0],['sine',3.01,.14,0]],level:1,attack:.012,decay:.45,decayLevel:.42,sustain:.12,release:.24,filter:6500,keyDuration:1.5,chordDuration:2},
+  strings:{name:'Soft Strings',partials:[['sawtooth',1,.55,-5],['sawtooth',1,.45,5]],level:.58,attack:.2,decay:.3,decayLevel:.85,sustain:.8,release:.4,filter:2600,keyDuration:1.9,chordDuration:2.5},
+  pad:{name:'Warm Pad',partials:[['triangle',1,.65,-7],['triangle',1,.55,7],['sine',.5,.25,0]],level:.85,attack:.48,decay:.45,decayLevel:.8,sustain:.75,release:.65,filter:1800,keyDuration:2.5,chordDuration:3},
+  organ:{name:'Organ',partials:[['sine',1,1,0],['sine',2,.48,0],['sine',3,.23,0],['sine',4,.12,0]],level:1,attack:.015,decay:.08,decayLevel:1,sustain:1,release:.07,keyDuration:1.3,chordDuration:1.8},
+  bell:{name:'Bell',partials:[['sine',1,1,0],['sine',2.76,.55,0],['sine',4.07,.25,0]],level:.95,attack:.004,decay:.65,decayLevel:.2,sustain:.012,release:.5,keyDuration:3.1,chordDuration:3.3}
+};
+let instrument='mellow',octaveShift=0,manualEpoch=0;
+// A five-octave viewport transposes as a whole: C2–B6 at 0, C0–B4 at -2,
+// C4–B8 at +2. Its combined range is MIDI 12–119, including all chord inversions.
+const KEYBOARD_BASE_MIN=36,KEYBOARD_BASE_MAX=95,WHITE_KEY_WIDTH=36,BLACK_KEY_WIDTH=23;
+// 03 — Shared audio engine. Per-voice envelopes, a conservative master gain and a voice cap.
+let audioContext=null, master=null, compressor=null;
+const voices=new Set();
+function status(message){$('audio-status').textContent=message;}
+async function ensureAudio(){
+  try {
+    if(!audioContext){
+      const Context=window.AudioContext||window.webkitAudioContext;
+      if(!Context) throw new Error('Web Audio is unavailable in this browser. Try a recent version of Chrome, Safari, or Edge.');
+      audioContext=new Context();
+      master=audioContext.createGain();master.gain.value=.65;
+      compressor=audioContext.createDynamicsCompressor();compressor.threshold.value=-16;compressor.knee.value=20;compressor.ratio.value=6;
+      master.connect(compressor);compressor.connect(audioContext.destination);
+    }
+    if(audioContext.state!=='running') await audioContext.resume();
+    if(audioContext.state!=='running') throw new Error('Audio is paused. Tap Play again to enable sound.');
+    return true;
+  }catch(error){status(error.message||'Sound could not start. Tap Play to try again.');return false;}
+}
+// Compute the envelope's current value for click-free cancellation on Safari too.
+function envelopeValue(voice,time){
+  const points=voice.envelope;if(time<=points[0].time)return 0;
+  for(let i=1;i<points.length;i++){
+    const a=points[i-1],b=points[i];
+    if(time<=b.time){const t=(time-a.time)/(b.time-a.time);return b.curve==='exp'?a.value*Math.pow(b.value/a.value,t):a.value+(b.value-a.value)*t;}
+  }
+  return 0;
+}
+function releaseVoice(voice){
+  if(voice.released)return;
+  voice.released=true;
+  const now=audioContext.currentTime,value=envelopeValue(voice,now);
+  voice.gain.gain.cancelScheduledValues(now);voice.gain.gain.setValueAtTime(value,now);
+  voice.gain.gain.linearRampToValueAtTime(0,now+.035);
+  voice.oscillators.forEach(osc=>{try{osc.stop(now+.045);}catch{}});
+}
+function stopVoices(group){for(const voice of voices)if(!group||voice.group===group)releaseVoice(voice);}
+// MIDI passed here is already the actual sounding pitch. Never transpose in synthesis.
+function playNote(midi,start,duration,group='key',sound=instrument){
+  const preset=INSTRUMENTS[sound];
+  const active=[...voices].filter(v=>!v.released);
+  if(active.length>=32)releaseVoice(active[0]);
+  const gain=audioContext.createGain(),nodes=[gain],oscillators=[];
+  let destination=gain;
+  if(preset.filter){const filter=audioContext.createBiquadFilter();filter.type='lowpass';filter.frequency.value=Math.min(preset.filter,audioContext.sampleRate*.45);filter.Q.value=.55;filter.connect(gain);nodes.push(filter);destination=filter;}
+  const frequency=midiFrequency(midi);
+  const partials=preset.partials.filter(([,ratio])=>frequency*ratio<audioContext.sampleRate*.45);
+  const weight=partials.reduce((sum,[,,amount])=>sum+amount,0);
+  for(const [type,ratio,amount,detune] of partials){
+    const osc=audioContext.createOscillator(),mix=audioContext.createGain();
+    osc.type=type;osc.frequency.value=frequency*ratio;osc.detune.value=detune;
+    mix.gain.value=amount/weight*preset.level;osc.connect(mix);mix.connect(destination);
+    oscillators.push(osc);nodes.push(osc,mix);
+  }
+  gain.connect(master);
+  const attack=Math.min(preset.attack,duration*.3),release=Math.min(preset.release,duration*.3);
+  const decay=Math.min(preset.decay,(duration-attack-release)*.6),peak=.095,end=start+duration;
+  const envelope=[{time:start,value:0},{time:start+attack,value:peak},
+    {time:start+attack+decay,value:peak*preset.decayLevel,curve:'exp'},
+    {time:end-release,value:peak*preset.sustain,curve:'exp'},{time:end,value:0}];
+  gain.gain.setValueAtTime(0,start);
+  for(const point of envelope.slice(1)){if(point.curve==='exp')gain.gain.exponentialRampToValueAtTime(point.value,point.time);else gain.gain.linearRampToValueAtTime(point.value,point.time);}
+  const voice={gain,oscillators,nodes,group,start,envelope,midi,sound,released:false};voices.add(voice);
+  let ended=0;
+  const cleanup=()=>{nodes.forEach(node=>node.disconnect());voices.delete(voice);};
+  if(!oscillators.length){cleanup();return null;}
+  for(const osc of oscillators){osc.onended=()=>{if(++ended===oscillators.length)cleanup();};osc.start(start);osc.stop(end+.015);}
+  return voice;
+}
+function soundChord(chord,time,duration,group){const sound=instrument;playbackVoicing(chord).forEach(note=>playNote(note.midi,time,duration,group,sound));}
+// 04 — Shared application state.
+let explorer={root:0,quality:'major',inversion:0};
+let slots=[{root:0,quality:'major7',inversion:0},{root:9,quality:'minor7',inversion:0},{root:2,quality:'minor7',inversion:0},{root:7,quality:'dominant7',inversion:0}];
+let selectedSlot=0, playing=false, playbackRequest=0, auditionRequest=0, scheduler=null, animation=null, events=[], nextSlot=0, nextTime=0, finishTime=null, activeSlot=-1;
+const keyButtons=new Map(), flashTimers=new Map();
+let explorerFlash=null;
+// 05 — Piano rendering and input. Roving tabindex keeps 60 keys out of the page tab order.
+function renderKeyboard(){
+  $('keyboard').replaceChildren();keyButtons.clear();
+  let whiteIndex=0;
+  for(let base=KEYBOARD_BASE_MIN;base<=KEYBOARD_BASE_MAX;base++){
+    const midi=base+octaveShift*12,pitch=midi%12,black=[1,3,6,8,10].includes(pitch),button=document.createElement('button');
+    button.className='key'+(black?' black':'');button.type='button';button.dataset.midi=midi;button.tabIndex=base===60?0:-1;
+    if(black)button.style.left=`${whiteIndex*WHITE_KEY_WIDTH-BLACK_KEY_WIDTH/2}px`;else whiteIndex++;
+    const label=ROOTS[pitch]+(Math.floor(midi/12)-1);button.setAttribute('aria-label',`Play ${label}`);
+    const caption=document.createElement('span');caption.className='key-label';caption.textContent=label;button.append(caption);
+    button.addEventListener('pointerdown',event=>{if(event.button!==0)return;event.preventDefault();focusKey(midi,false);auditionKey(midi);});
+    button.addEventListener('click',event=>{if(event.detail===0)auditionKey(midi);});
+    button.addEventListener('keydown',event=>{
+      const low=KEYBOARD_BASE_MIN+octaveShift*12,high=KEYBOARD_BASE_MAX+octaveShift*12;
+      let target=null;if(event.key==='ArrowRight')target=Math.min(high,midi+1);if(event.key==='ArrowLeft')target=Math.max(low,midi-1);if(event.key==='Home')target=low;if(event.key==='End')target=high;
+      if(target!==null){event.preventDefault();focusKey(target,true);}
+    });
+    keyButtons.set(midi,button);$('keyboard').append(button);
+  }
+  const low=KEYBOARD_BASE_MIN+octaveShift*12,high=KEYBOARD_BASE_MAX+octaveShift*12;
+  $('keyboard-register').textContent=`Keyboard register C${Math.floor(low/12)-1}–B${Math.floor(high/12)-1} · Keys sound as labeled · Scroll to explore`;
+}
+function scrollToChord(){
+  const notes=playbackVoicing(explorer),first=keyButtons.get(notes[0].midi),last=keyButtons.get(notes[notes.length-1].midi);
+  const viewport=$('keyboard').parentElement;
+  if(!first||!last)return;
+  const middle=(first.offsetLeft+last.offsetLeft+last.offsetWidth)/2;
+  viewport.scrollTo({left:Math.max(0,middle-viewport.clientWidth/2),behavior:'auto'});
+}
+function focusKey(midi,scroll){for(const key of keyButtons.values())key.tabIndex=-1;const key=keyButtons.get(midi);key.tabIndex=0;key.focus({preventScroll:!scroll});}
+async function auditionKey(midi){const epoch=manualEpoch;if(!await ensureAudio()||epoch!==manualEpoch||document.hidden)return;playNote(midi,audioContext.currentTime,INSTRUMENTS[instrument].keyDuration);const key=keyButtons.get(midi);key.classList.add('sounding');clearTimeout(flashTimers.get(midi));flashTimers.set(midi,setTimeout(()=>{key.classList.remove('sounding');flashTimers.delete(midi);},350));}
+function highlightChord(chord){const pitches=new Set(playbackVoicing(chord).map(n=>n.midi));for(const [midi,key] of keyButtons){key.classList.toggle('selected',pitches.has(midi));}}
+function clearSounding(){clearTimeout(explorerFlash);for(const timer of flashTimers.values())clearTimeout(timer);flashTimers.clear();for(const key of keyButtons.values())key.classList.remove('sounding');}
+function flashChord(chord,duration){clearSounding();for(const note of playbackVoicing(chord))keyButtons.get(note.midi).classList.add('sounding');explorerFlash=setTimeout(clearSounding,duration);}
+// 06 — Explorer controller.
+function updateExplorer(){
+  explorer=normalizeChord(explorer);$('root').value=explorer.root;$('quality').value=explorer.quality;
+  $('inversion').replaceChildren(...INVERSIONS.slice(0,chordFormulas[explorer.quality].length).map((label,i)=>new Option(label,i)));$('inversion').value=explorer.inversion;
+  const notes=playbackVoicing(explorer);$('chord-name').textContent=chordName(explorer);$('chord-notes').textContent=notes.map(writtenPitch).join(' · ');$('chord-inversion').textContent=INVERSIONS[explorer.inversion];$('voicing-label').textContent=writtenPitch(notes[0])+' – '+writtenPitch(notes[notes.length-1]);highlightChord(explorer);scrollToChord();
+}
+function changeExplorer(){auditionRequest++;stopVoices('explorer');clearSounding();explorer={root:Number($('root').value),quality:$('quality').value,inversion:Number($('inversion').value)};updateExplorer();}
+async function auditionChord(){const request=++auditionRequest;if(!await ensureAudio()||request!==auditionRequest)return;stopVoices('explorer');soundChord(explorer,audioContext.currentTime,INSTRUMENTS[instrument].chordDuration,'explorer');flashChord(explorer,700);status(`Playing ${chordName(explorer)} · ${INVERSIONS[explorer.inversion].toLowerCase()}.`);}
+// 07 — Progression controller and audio-clock scheduler.
+const PRESETS={pop:[[0,'major'],[7,'major'],[9,'minor'],[5,'major']],jazz:[[2,'minor7'],[7,'dominant7'],[0,'major7'],[0,'major7']],cinematic:[[9,'minor'],[5,'major'],[0,'major'],[7,'major']]};
+function renderSlots(){
+  $('slots').replaceChildren();slots.forEach((chord,index)=>{
+    const button=document.createElement('button');button.className='slot';button.setAttribute('aria-pressed',String(index===selectedSlot));button.setAttribute('aria-label',`Select slot ${index+1}: ${chordName(chord)}, ${INVERSIONS[chord.inversion]}`);
+    const top=document.createElement('span');top.className='slot-top';top.textContent=`0${index+1} / SELECT`;
+    const name=document.createElement('span');name.className='slot-name';name.textContent=chordName(chord);
+    const inv=document.createElement('span');inv.className='slot-inversion';inv.textContent=INVERSIONS[chord.inversion];button.append(top,name,inv);
+    button.addEventListener('click',()=>{selectedSlot=index;document.querySelectorAll('.slot').forEach((el,i)=>el.setAttribute('aria-pressed',String(i===index)));updateSlotLabel();});$('slots').append(button);
+  });updateSlotLabel();
+}
+function updateSlotLabel(){$('slot-edit-label').textContent=`Selected slot 0${selectedSlot+1} · ${chordName(slots[selectedSlot])}`;}
+function setPlayingSlot(index){if(activeSlot===index)return;activeSlot=index;document.querySelectorAll('.slot').forEach((el,i)=>{el.classList.toggle('playing',i===index);if(i===index)el.setAttribute('aria-current','step');else el.removeAttribute('aria-current');});}
+function stopPlayback(message){
+  playbackRequest++;playing=false;clearInterval(scheduler);cancelAnimationFrame(animation);scheduler=null;animation=null;events=[];finishTime=null;stopVoices('progression');setPlayingSlot(-1);$('play-progression').disabled=false;$('stop-progression').disabled=true;if(message)status(message);
+}
+function schedule(){
+  if(!playing||audioContext.state!=='running'){if(playing)stopPlayback('Audio was interrupted. Press Play to restart from bar 1.');return;}
+  const now=audioContext.currentTime;
+  if(nextTime<now-.2 && finishTime===null){stopPlayback('Playback paused while the page was inactive. Press Play to restart.');return;}
+  while(finishTime===null&&nextTime<now+.12){
+    const duration=240/Number($('bpm').value),chord={...slots[nextSlot]};
+    soundChord(chord,nextTime,duration*.92,'progression');events.push({index:nextSlot,time:nextTime,sound:INSTRUMENTS[instrument].name,octave:octaveShift});nextTime+=duration;
+    nextSlot++;
+    if(nextSlot===4){if($('loop').checked)nextSlot=0;else finishTime=nextTime;}
+  }
+}
+function syncVisuals(){
+  if(!playing)return;
+  const now=audioContext.currentTime;
+  while(events.length&&events[0].time<=now){const event=events.shift();setPlayingSlot(event.index);status(`Playing bar ${event.index+1} of 4 · ${chordName(slots[event.index])} · ${event.sound} · octave ${event.octave>0?'+':''}${event.octave}.`);}
+  if(finishTime!==null&&now>=finishTime){stopPlayback('Progression complete. Press Play to listen again.');return;}
+  animation=requestAnimationFrame(syncVisuals);
+}
+async function startPlayback(){
+  stopPlayback();const request=playbackRequest;$('play-progression').disabled=true;$('stop-progression').disabled=false;
+  if(!await ensureAudio()){if(request===playbackRequest)stopPlayback();return;}
+  if(request!==playbackRequest)return;
+  auditionRequest++;stopVoices('explorer');clearSounding();playing=true;nextSlot=0;nextTime=audioContext.currentTime+.06;finishTime=null;events=[];schedule();scheduler=setInterval(schedule,25);syncVisuals();
+}
+function structuralChange(message){stopPlayback(message);document.querySelectorAll('[data-preset]').forEach(button=>button.setAttribute('aria-pressed','false'));}
+// 08 — Portfolio content and accessible native dialog.
+const ART={
+ landscape:'<svg viewBox="0 0 480 400" role="img" aria-label="Abstract green mountains and a golden sun"><rect width="480" height="400" fill="#aab6a0"/><circle cx="343" cy="110" r="45" fill="#e1d9b8"/><path d="M0 240L100 139l84 82 91-105 205 151v133H0" fill="#798e76"/><path d="M0 293l135-79 128 98 110-105 107 66v127H0" fill="#536e5c"/><path d="M0 347l170-76 131 88 179-62v103H0" fill="#314e41"/><path d="M225 400l25-49-30-35 22-30" stroke="#c5c7a6" stroke-width="3" fill="none"/><text x="30" y="370" fill="#d5decb" font-family="Georgia" font-size="12" letter-spacing="4">OPEN HORIZONS</text></svg>',
+ piano:`<svg viewBox="0 0 640 360" role="img" aria-label="Editorial Hedwig's Theme cover with abstract piano keys, ivory typography and muted gold arcs">
+<defs><pattern id="piano-cover-keys" width="24" height="92" patternUnits="userSpaceOnUse"><path d="M0 0h23v92H0z" fill="#d2cdbf"/><path d="M17 0h7v55h-7z" fill="#252923"/></pattern></defs>
+<rect width="640" height="360" fill="#202422"/><path d="M430 0h210v360H430z" fill="#252b26"/>
+<g fill="none" stroke="#b8a17f" stroke-width=".8"><path d="M389-24C510 36 340 170 516 212S651 303 662 380"/><path d="M409-24C530 36 360 170 536 212S671 303 682 380" opacity=".45"/><path d="M429-24C550 36 380 170 556 212S691 303 702 380" opacity=".25"/></g>
+<path d="M42 86h48" stroke="#b8a17f"/><text x="42" y="111" fill="#b8a17f" font-family="Arial,sans-serif" font-size="10" letter-spacing="3">PIANO &amp; BRASS</text>
+<text x="40" y="168" fill="#f6f4ef" font-family="Georgia,serif" font-size="43">Hedwig’s</text><text x="40" y="218" fill="#f6f4ef" font-family="Georgia,serif" font-size="43" font-style="italic">Theme</text>
+<text x="43" y="250" fill="#c0baab" font-family="Arial,sans-serif" font-size="8" letter-spacing="2.6">AN ARRANGEMENT BY ASHLAN</text>
+<path d="M42 288h240" stroke="#b8a17f" opacity=".45"/><text x="42" y="318" fill="#b8a17f" font-family="Arial,sans-serif" font-size="9" letter-spacing="3">PERFORMANCE STUDY</text>
+<g transform="translate(446 234) rotate(-18)"><rect width="240" height="100" fill="#131914"/><rect x="4" y="4" width="240" height="92" fill="url(#piano-cover-keys)"/></g></svg>`,
+ midi:`<svg viewBox="0 0 640 360" role="img" aria-label="Conceptual music technology artwork: layered sage MIDI notes, pitch grids and orchestral staff lines, not research results">
+<defs><pattern id="midi-cover-grid" width="40" height="14" patternUnits="userSpaceOnUse"><path d="M0 0h40M0 0v14" stroke="#7b9180" stroke-width=".5" opacity=".28"/></pattern></defs>
+<rect width="640" height="360" fill="#202723"/>
+<text x="42" y="75" fill="#edf0e6" font-family="Georgia,serif" font-size="25">Structure in sound.</text><text x="43" y="99" fill="#a9bba4" font-family="Arial,sans-serif" font-size="8" letter-spacing="2">INSTRUMENT-AWARE PART RECONSTRUCTION</text>
+<rect x="126" y="129" width="472" height="168" fill="url(#midi-cover-grid)"/>
+<g font-family="Arial,sans-serif" font-size="8" letter-spacing="1.6" fill="#b7c2ae"><text x="43" y="153">STRINGS</text><text x="43" y="209">WINDS</text><text x="43" y="265">BRASS</text></g>
+<g stroke="#a7b5a0" stroke-width=".6" opacity=".4"><path d="M42 163h67m-67 4h67m-67 4h67m-67 4h67m-67 4h67M42 219h67m-67 4h67m-67 4h67m-67 4h67m-67 4h67M42 275h67m-67 4h67m-67 4h67m-67 4h67m-67 4h67"/></g>
+<g fill="#96b197"><rect x="130" y="145" width="67" height="8" rx="1"/><rect x="210" y="159" width="106" height="8" rx="1"/><rect x="330" y="145" width="67" height="8" rx="1"/><rect x="410" y="131" width="107" height="8" rx="1"/><rect x="530" y="159" width="67" height="8" rx="1"/></g>
+<g fill="#759580"><rect x="150" y="201" width="27" height="8" rx="1"/><rect x="190" y="187" width="47" height="8" rx="1"/><rect x="250" y="215" width="67" height="8" rx="1"/><rect x="350" y="201" width="47" height="8" rx="1"/><rect x="410" y="187" width="67" height="8" rx="1"/><rect x="510" y="201" width="87" height="8" rx="1"/></g>
+<g fill="#506f5d"><rect x="130" y="271" width="107" height="8" rx="1"/><rect x="250" y="257" width="107" height="8" rx="1"/><rect x="370" y="271" width="107" height="8" rx="1"/><rect x="490" y="243" width="107" height="8" rx="1"/></g>
+<path d="M321 123v180" stroke="#d2d5be" stroke-width="1" opacity=".7"/><circle cx="321" cy="122" r="2" fill="#d2d5be"/>
+<path d="M42 317h556" stroke="#5e7060" stroke-width=".6"/><text x="42" y="337" fill="#b6c3ad" font-family="Arial,sans-serif" font-size="8" letter-spacing="1.6">ONGOING RESEARCH</text><text x="598" y="337" text-anchor="end" fill="#9caa96" font-family="Arial,sans-serif" font-size="7" letter-spacing="1.5">CONCEPTUAL ARTWORK</text></svg>`
+};
+function validExternal(url){try{const parsed=new URL(url);return ['https:','http:'].includes(parsed.protocol)?parsed.href:null;}catch{return null;}}
+function applyImage(container,url,alt,priority=false){
+  if(!url)return;
+  const image=new Image();image.alt=alt;image.decoding='async';
+  // Loading is eager: images are inserted only after onload, so detached lazy images can stall.
+  if(priority)image.fetchPriority='high';
+  image.onload=()=>container.replaceChildren(image);
+  image.onerror=()=>{/* Keep the inline fallback; never insert a broken image. */};
+  image.src=url;
+}
+function renderPortfolio(){
+  $('hero-description').textContent=CONFIG.heroDescription;$('biography').textContent=CONFIG.biography;
+  applyImage($('portrait-media'),CONFIG.portrait.url,CONFIG.portrait.alt,true);
+  CONFIG.projects.forEach((project,index)=>{
+    const button=document.createElement('button');button.className='work-card';button.setAttribute('aria-haspopup','dialog');button.setAttribute('aria-label',`View project: ${project.title}`);
+    const cover=document.createElement('div');cover.className='cover';const art=document.createElement('div');art.className='cover-media';art.innerHTML=ART[project.art]||ART.landscape;applyImage(art,project.image,project.title+' cover');const number=document.createElement('span');number.className='cover-num';number.textContent='0'+(index+1);cover.append(art,number);
+    const category=document.createElement('span');category.className='work-category';category.textContent=project.category;
+    const heading=document.createElement('div');heading.className='work-heading';
+    const title=document.createElement('h3');title.textContent=project.title;heading.append(title);
+    if(project.topic){const topic=document.createElement('p');topic.className='work-topic';topic.textContent=project.topic;heading.append(topic);} 
+    const description=document.createElement('p');description.className='work-description';description.textContent=project.short;
+    const action=document.createElement('span');action.className='text-link';action.append('View Project');const arrow=document.createElement('span');arrow.className='arrow';arrow.textContent='↗';arrow.setAttribute('aria-hidden','true');action.append(arrow);
+    button.append(cover,category,heading,description,action);button.addEventListener('click',()=>openProject(project,button));$('works-grid').append(button);
+  });
+  const icons={YouTube:'▷',Instagram:'◎',GitHub:'⌘'};
+  for(const [name,url] of Object.entries(CONFIG.socials)){
+    const safe=validExternal(url),element=document.createElement(safe?'a':'span');if(safe){element.href=safe;element.target='_blank';element.rel='noopener noreferrer';element.setAttribute('aria-label',name+' (opens in a new tab)');}else element.className='unconfigured';
+    const icon=document.createElement('span');icon.className='social-icon';icon.textContent=icons[name];icon.setAttribute('aria-hidden','true');element.append(icon,name);if(!safe){const pending=document.createElement('small');pending.textContent='Link coming soon';element.append(pending);}else element.append(' ↗');$('socials').append(element);
+  }
+  $('year').textContent=new Date().getFullYear();
+}
+let dialogTrigger=null;
+function openProject(project,trigger){
+  dialogTrigger=trigger;$('dialog-title').textContent=project.title;$('dialog-category').textContent=project.category;$('dialog-copy').textContent=project.description;$('dialog-field-label').textContent=project.research?'Research Focus':'Instrumentation';
+  $('dialog-instruments').textContent=project.research?project.focus:project.instruments;
+  $('dialog-topic').hidden=!project.topic;$('dialog-topic').textContent=project.topic||'';
+  $('research-status').hidden=!project.research;$('research-details').hidden=!project.research;
+  $('research-keywords').replaceChildren(...(project.keywords||[]).map(keyword=>{const item=document.createElement('li');item.textContent=keyword;return item;}));
+  const url=project.research?null:validExternal(project.video);$('video-link').hidden=!url;$('video-pending').hidden=!!url||!!project.research;if(url)$('video-link').href=url;else $('video-link').removeAttribute('href');
+  $('project-dialog').showModal();document.body.classList.add('modal-open');$('close-dialog').focus();
+}
+// Sound/register changes preserve slots and the progression scheduler.
+function updateSoundControls(){
+  $('instrument').value=instrument;$('octave').value=String(octaveShift);
+  $('sound-label').textContent=`${INSTRUMENTS[instrument].name} · Octave ${octaveShift>0?'+':''}${octaveShift}`;
+}
+function changeSound(){
+  auditionRequest++;manualEpoch++;stopVoices('explorer');stopVoices('key');clearSounding();
+  const oldShift=octaveShift;instrument=$('instrument').value;octaveShift=Number($('octave').value);
+  if(oldShift!==octaveShift)renderKeyboard();
+  updateSoundControls();updateExplorer();
+  status(playing?'Sound and octave settings apply to the next newly scheduled chord.':`${INSTRUMENTS[instrument].name} selected · octave ${octaveShift>0?'+':''}${octaveShift}.`);
+}
+function resetExplorer(){
+  auditionRequest++;manualEpoch++;stopVoices('explorer');stopVoices('key');clearSounding();
+  explorer={root:0,quality:'major',inversion:0};instrument='mellow';octaveShift=0;
+  renderKeyboard();updateSoundControls();updateExplorer();
+  status(playing?'Explorer reset. Mellow Piano and octave 0 apply to the next newly scheduled chord.':'Explorer reset to C major · Mellow Piano · octave 0.');
+}
+// 09 — Initialize and bind events.
+ROOTS.forEach((name,i)=>$('root').add(new Option(name,i)));Object.entries(QUALITIES).forEach(([key,[name]])=>$('quality').add(new Option(name,key)));
+Object.entries(INSTRUMENTS).forEach(([key,preset])=>$('instrument').add(new Option(preset.name,key)));
+[-2,-1,0,1,2].forEach(shift=>$('octave').add(new Option(`${shift>0?'+':''}${shift}${shift===0?' (default)':Math.abs(shift)===1?' octave':' octaves'}`,shift)));
+renderPortfolio();renderKeyboard();updateSoundControls();updateExplorer();renderSlots();
+for(const id of ['instrument','octave'])$(id).addEventListener('change',changeSound);
+for(const id of ['root','quality','inversion'])$(id).addEventListener('change',changeExplorer);
+$('play-chord').addEventListener('click',auditionChord);
+$('reset').addEventListener('click',resetExplorer);
+$('load-slot').addEventListener('click',()=>{auditionRequest++;stopVoices('explorer');clearSounding();explorer={...slots[selectedSlot]};updateExplorer();status(`Slot ${selectedSlot+1} loaded. Edit above, then choose Replace with explorer to save.`);$('root').focus();});
+$('replace-slot').addEventListener('click',()=>{structuralChange(`Slot ${selectedSlot+1} updated. Press Play to hear your progression.`);slots[selectedSlot]={...explorer};renderSlots();});
+for(const button of document.querySelectorAll('[data-preset]'))button.addEventListener('click',()=>{structuralChange(`${button.textContent} preset loaded. Press Play to listen.`);slots=PRESETS[button.dataset.preset].map(([root,quality])=>({root,quality,inversion:0}));renderSlots();button.setAttribute('aria-pressed','true');});
+$('play-progression').addEventListener('click',startPlayback);
+$('stop-progression').addEventListener('click',()=>{auditionRequest++;manualEpoch++;stopPlayback('Stopped. Press Play to begin again at bar 1.');stopVoices();clearSounding();});
+$('bpm').addEventListener('input',()=>{$('bpm-output').value=$('bpm').value+' BPM';if(playing)status('Tempo updated for the next unscheduled bar.');});
+$('loop').addEventListener('change',()=>{
+  if(!playing)return;
+  // Honor a toggle even if the final bar has already been scheduled.
+  if($('loop').checked&&finishTime!==null){nextSlot=0;finishTime=null;}
+  else if(!$('loop').checked&&nextSlot===0){finishTime=nextTime;}
+  status($('loop').checked?'Loop on. The progression will repeat.':'Loop off. Playback will finish after bar 4.');
+});
+$('close-dialog').addEventListener('click',()=>$('project-dialog').close());
+let backdropDown=false;
+$('project-dialog').addEventListener('pointerdown',event=>{const r=$('project-dialog').getBoundingClientRect();backdropDown=event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom;});
+$('project-dialog').addEventListener('click',event=>{const r=$('project-dialog').getBoundingClientRect();if(backdropDown&&(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom))$('project-dialog').close();backdropDown=false;});
+$('project-dialog').addEventListener('close',()=>{document.body.classList.remove('modal-open');dialogTrigger?.focus({preventScroll:true});});
+const menu=document.querySelector('.menu-toggle');function closeMenu(){menu.setAttribute('aria-expanded','false');$('navigation').classList.remove('open');}
+menu.addEventListener('click',()=>{const open=menu.getAttribute('aria-expanded')!=='true';menu.setAttribute('aria-expanded',String(open));$('navigation').classList.toggle('open',open);});
+$('navigation').addEventListener('click',event=>{if(event.target.closest('a'))closeMenu();});
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&menu.getAttribute('aria-expanded')==='true'){closeMenu();menu.focus();}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){auditionRequest++;manualEpoch++;stopPlayback('Playback paused while the page is hidden. Press Play to resume from bar 1.');stopVoices();clearSounding();}});
+window.addEventListener('pagehide',()=>{auditionRequest++;manualEpoch++;stopPlayback();stopVoices();clearSounding();});
+if(!window.AudioContext&&!window.webkitAudioContext)status('Web Audio is not supported here. You can explore the notes visually; try a recent browser for sound.');
+})();
+</script>
+</body>
+</html>
